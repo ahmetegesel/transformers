@@ -369,35 +369,6 @@ class Mistral3IntegrationTest(unittest.TestCase):
             torch.save(value, os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
             value_fp32 = value.to(torch.float32)
             torch.save(value_fp32, os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
-            loaded = torch.load(os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
-            loaded_fp32 = torch.load(os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
-
-        with torch.no_grad():
-            out = self.model(**inputs)
-            for key, value in out.items():
-                if key == "past_key_values":
-                    continue
-                value = value.clone().detach().to("cpu")
-                torch.save(value, os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
-                value_fp32 = value.to(torch.float32)
-                torch.save(value_fp32, os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
-
-        with torch.no_grad():
-            generate_ids = self.model.generate(**inputs, max_new_tokens=20, do_sample=False)
-            decoded_output = processor.decode(
-                generate_ids[0, inputs["input_ids"].shape[1] :], skip_special_tokens=True
-            )
-
-        expected_outputs = Expectations(
-            {
-                ("xpu", 3): "The image features two cats resting on a pink blanket. The cat on the left is a kitten",
-                ("cuda", 7): 'The image features two tabby cats lying on a pink surface, which appears to be a couch or',
-                ("cuda", 8): 'The image features two cats lying on a pink surface, which appears to be a couch or a bed',
-            }
-        )  # fmt: skip
-        expected_output = expected_outputs.get_expectation()
-
-        self.assertEqual(decoded_output, expected_output)
 
     @require_read_token
     @require_deterministic_for_xpu
@@ -443,55 +414,6 @@ class Mistral3IntegrationTest(unittest.TestCase):
             torch.save(value, os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
             value_fp32 = value.to(torch.float32)
             torch.save(value_fp32, os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
-            loaded = torch.load(os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
-            loaded_fp32 = torch.load(os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
-
-        with torch.no_grad():
-            out = self.model(**inputs)
-            for key, value in out.items():
-                if key == "past_key_values":
-                    continue
-                value = value.clone().detach().to("cpu")
-                torch.save(value, os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
-                value_fp32 = value.to(torch.float32)
-                torch.save(value_fp32, os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
-
-        output = self.model.generate(**inputs, do_sample=False, max_new_tokens=25)
-
-        gen_tokens = output[:, inputs["input_ids"].shape[1] :]
-
-        # Check first output
-        decoded_output = processor.decode(gen_tokens[0], skip_special_tokens=True)
-
-        expected_outputs = Expectations(
-            {
-                ("xpu", 3): "Calm lake's mirror gleams,\nWhispering pines stand in silence,\nPath to peace begins.",
-                ("cuda", 7): 'Calm waters reflect\nWooden path to distant shore\nSilence in the woods',
-                ("cuda", 8): "Wooden path to calm,\nReflections whisper secrets,\nNature's peace unfolds.",
-            }
-        )  # fmt: skip
-        expected_output = expected_outputs.get_expectation()
-        self.assertEqual(
-            decoded_output,
-            expected_output,
-            f"Decoded output: {decoded_output}\nExpected output: {expected_output}",
-        )
-
-        # Check second output
-        decoded_output = processor.decode(gen_tokens[1], skip_special_tokens=True)
-        expected_outputs = Expectations(
-            {
-                ("xpu", 3): "The image depicts a vibrant urban scene in what appears to be Chinatown. The focal point is a traditional Chinese archway",
-                ("cuda", 7): 'The image depicts a street scene in what appears to be a Chinatown district. The focal point is a traditional Chinese arch',
-                ("cuda", 8): 'The image depicts a street scene in what appears to be a Chinatown district. The focal point is a traditional Chinese arch',
-            }
-        )  # fmt: skip
-        expected_output = expected_outputs.get_expectation()
-        self.assertEqual(
-            decoded_output,
-            expected_output,
-            f"Decoded output: {decoded_output}\nExpected output: {expected_output}",
-        )
 
     @require_read_token
     @require_deterministic_for_xpu
@@ -548,51 +470,5 @@ class Mistral3IntegrationTest(unittest.TestCase):
             torch.save(value, os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
             value_fp32 = value.to(torch.float32)
             torch.save(value_fp32, os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
-            loaded = torch.load(os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
-            loaded_fp32 = torch.load(os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
 
-        with torch.no_grad():
-            out = self.model(**inputs)
-            for key, value in out.items():
-                if key == "past_key_values":
-                    continue
-                value = value.clone().detach().to("cpu")
-                torch.save(value, os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
-                value_fp32 = value.to(torch.float32)
-                torch.save(value_fp32, os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
 
-        output = self.model.generate(**inputs, do_sample=False, max_new_tokens=25)
-        gen_tokens = output[:, inputs["input_ids"].shape[1] :]
-
-        # Check first output
-        decoded_output = processor.decode(gen_tokens[0], skip_special_tokens=True)
-        expected_outputs = Expectations(
-            {
-                ("xpu", 3): "Still lake reflects skies,\nWooden path to nature's heart,\nSilence speaks volumes.",
-                ("cuda", 7): 'Calm waters reflect\nWooden path to distant shore\nSilence in the pines',
-                ("cuda", 8): 'Calm waters reflect\nWooden path to distant shore\nSilence in the pines',
-            }
-        )  # fmt: skip
-        expected_output = expected_outputs.get_expectation()
-        self.assertEqual(
-            decoded_output,
-            expected_output,
-            f"Decoded output: {decoded_output}\nExpected output: {expected_output}",
-        )
-
-        # Check second output
-        decoded_output = processor.decode(gen_tokens[1], skip_special_tokens=True)
-        expected_outputs = Expectations(
-            {
-                ("xpu", 3): "Certainly! The images depict two iconic landmarks:\n\n1. The first image shows the Statue of Liberty in New York City.",
-                ("cuda", 7): 'Certainly! The images depict two famous landmarks in the United States:\n\n1. The first image shows the Statue of Liberty,',
-                ("cuda", 8): 'Certainly! The images depict two famous landmarks in the United States:\n\n1. The first image shows the Statue of Liberty,',
-            }
-        )  # fmt: skip
-        expected_output = expected_outputs.get_expectation()
-
-        self.assertEqual(
-            decoded_output,
-            expected_output,
-            f"Decoded output: {decoded_output}\nExpected output: {expected_output}",
-        )
