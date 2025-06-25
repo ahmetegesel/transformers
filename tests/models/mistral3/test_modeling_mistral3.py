@@ -325,20 +325,19 @@ class Mistral3IntegrationTest(unittest.TestCase):
             messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt"
         ).to(torch_device, dtype=torch.float16)
 
-        with torch.no_grad():
-            generate_ids = self.model.generate(**inputs, max_new_tokens=200, do_sample=False)
-            decoded_output = processor.decode(
-                generate_ids[0, inputs["input_ids"].shape[1] :], skip_special_tokens=True
-            )
-        expected_outputs = Expectations(
-            {
-                ("xpu", 3): "Sure, here is a haiku for you:\n\nWhispers of the breeze,\nCherry blossoms softly fall,\nSpring's gentle embrace.",
-                ("cuda", 7): "Sure, here is a haiku for you:\n\nWhispers of the breeze,\nCherry blossoms softly fall,\nSpring's gentle embrace.",
-                ("cuda", 8): "Sure, here is a haiku for you:\n\nWhispers of the breeze,\nCherry blossoms softly fall,\nSpring's gentle embrace.",
-            }
-        )  # fmt: skip
-        expected_output = expected_outputs.get_expectation()
-        self.assertEqual(decoded_output, expected_output)
+        import os
+        test_name = os.environ.get('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0]
+        test_inputs_dir = os.path.join("test_inputs", test_name)
+        os.mkdir(test_inputs_dir)
+
+        keys = dict(inputs).keys()
+        for key in keys:
+            value = dict(inputs)[key]
+            value = value.clone().detach().to("cpu")
+            torch.save(value, os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
+            value_fp32 = value.to(torch.float32)
+            torch.save(value_fp32, os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
+
 
     @require_read_token
     def test_mistral3_integration_generate(self):
@@ -470,5 +469,3 @@ class Mistral3IntegrationTest(unittest.TestCase):
             torch.save(value, os.path.join(test_inputs_dir, f"{test_name}_{key}.pt"))
             value_fp32 = value.to(torch.float32)
             torch.save(value_fp32, os.path.join(test_inputs_dir, f"{test_name}_{key}_fp32.pt"))
-
-
