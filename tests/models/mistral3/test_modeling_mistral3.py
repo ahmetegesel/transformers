@@ -301,7 +301,7 @@ class Mistral3IntegrationTest(unittest.TestCase):
         cleanup(torch_device, gc_collect=True)
         self.model_checkpoint = "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
         self.model = Mistral3ForConditionalGeneration.from_pretrained(
-            self.model_checkpoint, torch_dtype=torch.ffloat16
+            self.model_checkpoint, torch_dtype=torch.bffloat16
         )
         accelerate.cpu_offload(self.model, execution_device=torch_device)
 
@@ -323,7 +323,7 @@ class Mistral3IntegrationTest(unittest.TestCase):
 
         inputs = processor.apply_chat_template(
             messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt"
-        ).to(torch_device, dtype=torch.ffloat16)
+        ).to(torch_device, dtype=torch.bffloat16)
 
         with torch.no_grad():
             generate_ids = self.model.generate(**inputs, max_new_tokens=200, do_sample=False)
@@ -355,7 +355,7 @@ class Mistral3IntegrationTest(unittest.TestCase):
 
         inputs = processor.apply_chat_template(
             messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt"
-        ).to(torch_device, dtype=torch.ffloat16)
+        ).to(torch_device, dtype=torch.bffloat16)
 
         import os
         test_name = os.environ.get('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0]
@@ -429,7 +429,7 @@ class Mistral3IntegrationTest(unittest.TestCase):
 
         inputs = processor.apply_chat_template(
             messages, padding=True, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt"
-        ).to(torch_device, dtype=torch.ffloat16)
+        ).to(torch_device, dtype=torch.bffloat16)
 
         import os
         test_name = os.environ.get('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0]
@@ -534,7 +534,7 @@ class Mistral3IntegrationTest(unittest.TestCase):
         ]
         inputs = processor.apply_chat_template(
             messages, padding=True, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt"
-        ).to(torch_device, dtype=torch.ffloat16)
+        ).to(torch_device, dtype=torch.bffloat16)
 
         import os
         test_name = os.environ.get('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0]
