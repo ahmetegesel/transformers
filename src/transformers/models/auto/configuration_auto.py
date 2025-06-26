@@ -287,6 +287,7 @@ CONFIG_MAPPING_NAMES = OrderedDict[str, str](
         ("qwen2_vl_text", "Qwen2VLTextConfig"),
         ("qwen3", "Qwen3Config"),
         ("qwen3_moe", "Qwen3MoeConfig"),
+        ("qwen3moe", "Qwen3MoeConfig"),
         ("rag", "RagConfig"),
         ("realm", "RealmConfig"),
         ("recurrent_gemma", "RecurrentGemmaConfig"),
@@ -678,6 +679,7 @@ MODEL_NAMES_MAPPING = OrderedDict[str, str](
         ("qwen2_vl_text", "Qwen2VL"),
         ("qwen3", "Qwen3"),
         ("qwen3_moe", "Qwen3MoE"),
+        ("qwen3moe", "Qwen3MoE"),
         ("rag", "RAG"),
         ("realm", "REALM"),
         ("recurrent_gemma", "RecurrentGemma"),
@@ -853,6 +855,7 @@ SPECIAL_MODEL_TYPE_TO_MODULE_NAME = OrderedDict[str, str](
         ("sam_hq_vision_model", "sam_hq"),
         ("llama4_text", "llama4"),
         ("blip_2_qformer", "blip_2"),
+        ("qwen3moe", "qwen3_moe"),
     ]
 )
 
