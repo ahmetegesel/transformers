@@ -492,7 +492,7 @@ TOKENIZER_MAPPING_NAMES = OrderedDict[str, tuple[Optional[str], Optional[str]]](
             ),
         ),
         (
-            "qwen3_moe",
+            "qwen3moe",
             (
                 "Qwen2Tokenizer",
                 "Qwen2TokenizerFast" if is_tokenizers_available() else None,
